@@ -50,7 +50,7 @@
                     :alpha 1
               container ({})
                 container
-                  {} $ :position ([] 100 100)
+                  {} $ :position ([] -300 -300)
                   graphics $ {}
                     :ops $ concat
                       [] $ g :line-style
@@ -98,7 +98,7 @@
                     :round? true
                     :unit 1
                     :min 2
-                    :position $ [] 540 20
+                    :position $ [] 140 -280
                     :title "\"Steps"
                     :on-change $ fn (v d!)
                       d! cursor $ assoc state :steps v
@@ -109,7 +109,7 @@
                     :unit 0.0001
                     :min 0.0001
                     :max 2
-                    :position $ [] 120 20
+                    :position $ [] -280 -280
                     :on-change $ fn (v d!)
                       d! cursor $ assoc state :v0 v
                 comp-slider (>> states :v1)
@@ -118,7 +118,7 @@
                     :title "\"v1"
                     :unit 0.1
                     :min 1
-                    :position $ [] 260 20
+                    :position $ [] -140 -280
                     :round? true
                     :on-change $ fn (v d!)
                       d! cursor $ assoc state :v1 v
@@ -129,7 +129,7 @@
                     :unit 0.1
                     :min 1
                     :round? true
-                    :position $ [] 400 20
+                    :position $ [] 0 -280
                     :on-change $ fn (v d!)
                       d! cursor $ assoc state :v2 v
                 comp-slider (>> states :alpha)
@@ -140,7 +140,7 @@
                     :min 0.001
                     :max 1
                     :round? false
-                    :position $ [] 680 20
+                    :position $ [] 280 -280
                     :on-change $ fn (v d!)
                       d! cursor $ assoc state :alpha v
                 comp-slider (>> states :phi2)
@@ -151,7 +151,7 @@
                     :min 0.001
                     :max 360
                     :round? false
-                    :position $ [] 820 20
+                    :position $ [] 420 -280
                     :on-change $ fn (v d!)
                       d! cursor $ assoc state :phi2 v
         |gen-trails $ quote
@@ -233,7 +233,7 @@
                   println "\"dispatch!" op op-data
                 let
                     op-id $ shortid/generate
-                    op-time $ .now js/Date
+                    op-time $ js/Date.now
                   reset! *store $ updater @*store op op-data op-id op-time
         |reload! $ quote
           defn reload! () $ if (nil? build-errors)
