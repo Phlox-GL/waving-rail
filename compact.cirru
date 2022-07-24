@@ -1,38 +1,58 @@
 
 {} (:package |app)
-  :configs $ {} (:init-fn |app.main/main!) (:reload-fn |app.main/reload!)
-    :modules $ [] |memof/ |lilac/ |respo.calcit/ |respo-ui.calcit/ |phlox.calcit/
-    :version nil
+  :configs $ {} (:init-fn |app.main/main!) (:reload-fn |app.main/reload!) (:version nil)
+    :modules $ [] |memof/ |lilac/ |respo.calcit/ |respo-ui.calcit/ |phlox/
+  :entries $ {}
   :files $ {}
-    |app.schema $ {}
-      :ns $ quote (ns app.schema)
+    |app.complex $ {}
       :defs $ {}
-        |store $ quote
-          def store $ {} (:tab :drafts) (:x 0)
-            :states $ {}
-    |app.updater $ {}
-      :ns $ quote
-        ns app.updater $ :require
-          phlox.cursor :refer $ update-states
+        |add $ quote
+          defn add (p1 p2)
+            let-sugar
+                  [] a b
+                  , p1
+                ([] x y) p2
+              [] (+ a x) (+ b y)
+        |minus $ quote
+          defn minus
+              [] a b
+              [] x y
+            [] (- a x) (- b y)
+        |negate $ quote
+          defn negate
+              [] x y
+            [] (- 0 x) (- 0 y)
+        |times $ quote
+          defn times (p1 p2)
+            let-sugar
+                  [] a b
+                  , p1
+                ([] x y) p2
+              []
+                - (* a x) (* b y)
+                + (* a y) (* b x)
+      :ns $ quote (ns app.complex)
+    |app.config $ {}
       :defs $ {}
-        |updater $ quote
-          defn updater (store op op-data op-id op-time)
-            case-default op
-              do (println "\"unknown op" op op-data) store
-              :add-x $ update store :x
-                fn (x)
-                  if (> x 10) 0 $ + x 1
-              :tab $ assoc store :tab op-data
-              :states $ update-states store op-data
-              :hydrate-storage op-data
+        |cdn? $ quote
+          def cdn? $ cond
+              exists? js/window
+              , false
+            (exists? js/process) (= "\"true" js/process.env.cdn)
+            :else false
+        |dev? $ quote
+          def dev? $ = "\"dev" (get-env "\"mode" "\"release")
+        |site $ quote
+          def site $ {} (:dev-ui "\"http://localhost:8100/main-fonts.css") (:release-ui "\"http://cdn.tiye.me/favored-fonts/main-fonts.css") (:cdn-url "\"http://cdn.tiye.me/waving-rail/") (:title "\"Waving Rail") (:icon "\"http://cdn.tiye.me/logo/quamolit.png") (:storage-key "\"waving-rail")
+      :ns $ quote (ns app.config)
     |app.container $ {}
-      :ns $ quote
-        ns app.container $ :require
-          [] phlox.core :refer $ [] defcomp >> hslx rect circle text container graphics create-list g
-          [] app.complex :as complex
-          [] phlox.comp.slider :refer $ [] comp-slider
-          [] phlox.comp.drag-point :refer $ [] comp-drag-point
       :defs $ {}
+        |cal-position $ quote
+          defn cal-position (base-point r v0 v phi idx)
+            complex/add base-point $ complex/times ([] r 0)
+              []
+                js/Math.cos $ + phi (* v0 v idx)
+                js/Math.sin $ + phi (* v0 v idx)
         |comp-container $ quote
           defcomp comp-container (store)
             let
@@ -162,67 +182,15 @@
                 []
                   cal-position (:p1 state) (:r1 state) (:v0 state) (:v1 state) 0 idx
                   cal-position (:p2 state) (:r2 state) (:v0 state) (:v2 state) (:phi2 state) idx
-        |cal-position $ quote
-          defn cal-position (base-point r v0 v phi idx)
-            complex/add base-point $ complex/times ([] r 0)
-              []
-                js/Math.cos $ + phi (* v0 v idx)
-                js/Math.sin $ + phi (* v0 v idx)
-    |app.complex $ {}
-      :ns $ quote (ns app.complex)
-      :defs $ {}
-        |add $ quote
-          defn add (p1 p2)
-            let-sugar
-                  [] a b
-                  , p1
-                ([] x y) p2
-              [] (+ a x) (+ b y)
-        |minus $ quote
-          defn minus
-              [] a b
-              [] x y
-            [] (- a x) (- b y)
-        |times $ quote
-          defn times (p1 p2)
-            let-sugar
-                  [] a b
-                  , p1
-                ([] x y) p2
-              []
-                - (* a x) (* b y)
-                + (* a y) (* b x)
-        |negate $ quote
-          defn negate
-              [] x y
-            [] (- 0 x) (- 0 y)
-    |app.main $ {}
       :ns $ quote
-        ns app.main $ :require ([] "\"pixi.js" :as PIXI) ([] "\"shortid" :as shortid)
-          [] phlox.core :refer $ [] render! clear-phlox-caches!
-          [] app.container :refer $ [] comp-container
-          [] app.schema :as schema
-          [] app.config :refer $ [] dev?
-          [] app.updater :refer $ [] updater
-          [] "\"fontfaceobserver-es" :default FontFaceObserver
-          "\"./calcit.build-errors" :default build-errors
-          "\"bottom-tip" :default hud!
+        ns app.container $ :require
+          [] phlox.core :refer $ [] defcomp >> hslx rect circle text container graphics create-list g
+          [] app.complex :as complex
+          [] phlox.comp.slider :refer $ [] comp-slider
+          [] phlox.comp.drag-point :refer $ [] comp-drag-point
+    |app.main $ {}
       :defs $ {}
-        |render-app! $ quote
-          defn render-app! () $ render! (comp-container @*store) dispatch! ({})
-        |main! $ quote
-          defn main! ()
-            if dev? $ load-console-formatter!
-            -> global-fonts $ .then
-              fn (e) (render-app!)
-            add-watch *store :change $ fn (s p) (render-app!)
-            println "\"App Started"
         |*store $ quote (defatom *store schema/store)
-        |global-fonts $ quote
-          def global-fonts $ js/Promise.all
-            js-array
-              .load $ new FontFaceObserver "\"Josefin Sans"
-              .load $ new FontFaceObserver "\"Hind"
         |dispatch! $ quote
           defn dispatch! (op op-data)
             if (list? op)
@@ -235,6 +203,18 @@
                     op-id $ shortid/generate
                     op-time $ js/Date.now
                   reset! *store $ updater @*store op op-data op-id op-time
+        |global-fonts $ quote
+          def global-fonts $ js/Promise.all
+            js-array
+              .load $ new FontFaceObserver "\"Josefin Sans"
+              .load $ new FontFaceObserver "\"Hind"
+        |main! $ quote
+          defn main! ()
+            if dev? $ load-console-formatter!
+            -> global-fonts $ .then
+              fn (e) (render-app!)
+            add-watch *store :change $ fn (s p) (render-app!)
+            println "\"App Started"
         |reload! $ quote
           defn reload! () $ if (nil? build-errors)
             do (println "\"Code updated.") (clear-phlox-caches!) (remove-watch *store :change)
@@ -242,16 +222,36 @@
               render-app!
               hud! "\"ok~" "\"Ok"
             hud! "\"error" build-errors
-    |app.config $ {}
-      :ns $ quote (ns app.config)
+        |render-app! $ quote
+          defn render-app! () $ render! (comp-container @*store) dispatch! ({})
+      :ns $ quote
+        ns app.main $ :require ([] "\"pixi.js" :as PIXI) ([] "\"shortid" :as shortid)
+          [] phlox.core :refer $ [] render! clear-phlox-caches!
+          [] app.container :refer $ [] comp-container
+          [] app.schema :as schema
+          [] app.config :refer $ [] dev?
+          [] app.updater :refer $ [] updater
+          [] "\"fontfaceobserver-es" :default FontFaceObserver
+          "\"./calcit.build-errors" :default build-errors
+          "\"bottom-tip" :default hud!
+    |app.schema $ {}
       :defs $ {}
-        |cdn? $ quote
-          def cdn? $ cond
-              exists? js/window
-              , false
-            (exists? js/process) (= "\"true" js/process.env.cdn)
-            :else false
-        |dev? $ quote
-          def dev? $ = "\"dev" (get-env "\"mode")
-        |site $ quote
-          def site $ {} (:dev-ui "\"http://localhost:8100/main-fonts.css") (:release-ui "\"http://cdn.tiye.me/favored-fonts/main-fonts.css") (:cdn-url "\"http://cdn.tiye.me/waving-rail/") (:title "\"Waving Rail") (:icon "\"http://cdn.tiye.me/logo/quamolit.png") (:storage-key "\"waving-rail")
+        |store $ quote
+          def store $ {} (:tab :drafts) (:x 0)
+            :states $ {}
+      :ns $ quote (ns app.schema)
+    |app.updater $ {}
+      :defs $ {}
+        |updater $ quote
+          defn updater (store op op-data op-id op-time)
+            case-default op
+              do (println "\"unknown op" op op-data) store
+              :add-x $ update store :x
+                fn (x)
+                  if (> x 10) 0 $ + x 1
+              :tab $ assoc store :tab op-data
+              :states $ update-states store op-data
+              :hydrate-storage op-data
+      :ns $ quote
+        ns app.updater $ :require
+          phlox.cursor :refer $ update-states
