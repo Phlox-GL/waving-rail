@@ -8,7 +8,7 @@ Inspired by https://twitter.com/wonderofscience/status/1269426023080144896
 
 Workflow https://github.com/mvc-works/phlox-workflow
 
-当前使用配对 Calcit / `@calcit/procs` 0.30.1-alpha.5、正式 Phlox 0.7.15 / Touch Control 0.0.31、Node.js 24、Yarn 4.18.0 和 Vite。候选验收不等于正式 0.30.1 二进制验收。源码只保留 `calcit.cirru` 与 `deps.cirru`：运行 `caps --strict --ci`、`yarn install --immutable`、`yarn build`。本地不运行 Caps；CI 独立解析依赖。Calcit snapshot 必须通过 CLI 编辑。
+当前使用配对 Calcit / `@calcit/procs` 0.30.1-alpha.5、正式 Phlox 0.7.15 / Touch Control 0.0.31、Node.js 24、Yarn 4.18.0 和 Vite。候选验收不等于正式 0.30.1 二进制验收。源码只保留 `calcit.cirru` 与 `deps.cirru`：运行 `caps --strict --ci`、`yarn install --immutable`、`yarn build`。本次本地验收未运行 Caps；本地开发仍须执行上述安装步骤以生成模块链接。CI 独立解析依赖。Calcit snapshot 必须通过 CLI 编辑。
 
 `yarn dev` 先编译再启动 Vite，修改 Calcit 时在另一终端运行 `yarn watch`，无需 concurrently。`yarn build` 只编译一次，安装依赖与编译命令分开。
 
