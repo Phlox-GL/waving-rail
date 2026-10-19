@@ -55,6 +55,9 @@
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'List 'Number) (:: 'List 'Number)
             :return $ :: 'List 'Number
+          :tests $ [] $ %{} 'TestEntry (:name |complex-product)
+            :code $ quote $ assert= ([] -5 10)
+              times ([] 1 2) ([] 3 4)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.complex
     'app.config $ %{} 'FileEntry
@@ -104,13 +107,16 @@
                           []
                             g :move-to $ .unwrap $ first pair
                             g :line-to $ .unwrap $ last pair
-                  comp-drag-point (>> states :p1)
+                  comp-drag-point
+                    decode-map-as (>> states :p1) (:: 'Map 'Tag 'Dynamic)
                     {}
                       :position $ :p1 state
                       :radius 4
                       :on-change $ fn (p d!)
-                        d! $ :: :states cursor $ assoc state :p1 p
-                  comp-drag-point (>> states :r1)
+                        d! $ :: :states cursor $ assoc state :p1
+                          decode-map-as p $ :: 'List 'Number
+                  comp-drag-point
+                    decode-map-as (>> states :r1) (:: 'Map 'Tag 'Dynamic)
                     {}
                       :position $ complex/add (:p1 state)
                         [] (:r1 state) 0
@@ -118,15 +124,18 @@
                       :on-change $ fn (p d!)
                         d! $ :: :states cursor $ assoc state :r1
                           -
-                            .unwrap $ first p
+                            .unwrap $ first $ decode-map-as p (:: 'List 'Number)
                             .unwrap $ first $ :p1 state
-                  comp-drag-point (>> states :p2)
+                  comp-drag-point
+                    decode-map-as (>> states :p2) (:: 'Map 'Tag 'Dynamic)
                     {}
                       :position $ :p2 state
                       :radius 4
                       :on-change $ fn (p d!)
-                        d! $ :: :states cursor $ assoc state :p2 p
-                  comp-drag-point (>> states :r2)
+                        d! $ :: :states cursor $ assoc state :p2
+                          decode-map-as p $ :: 'List 'Number
+                  comp-drag-point
+                    decode-map-as (>> states :r2) (:: 'Map 'Tag 'Dynamic)
                     {}
                       :position $ complex/add (:p2 state)
                         [] (:r2 state) 0
@@ -134,9 +143,10 @@
                       :on-change $ fn (p d!)
                         d! $ :: :states cursor $ assoc state :r2
                           -
-                            .unwrap $ first p
+                            .unwrap $ first $ decode-map-as p (:: 'List 'Number)
                             .unwrap $ first $ :p2 state
-                comp-slider (>> states :steps)
+                comp-slider
+                  decode-map-as (>> states :steps) (:: 'Map 'Tag 'Dynamic)
                   {}
                     :value $ :steps state
                     :round? true
@@ -145,18 +155,20 @@
                     :position $ [] 140 -280
                     :title |Steps
                     :on-change $ fn (v d!)
-                      d! $ :: :states cursor $ assoc state :steps v
-                comp-slider (>> states :v0)
+                      d! $ :: :states cursor $ assoc state :steps (decode-map-as v 'Number)
+                comp-slider
+                  decode-map-as (>> states :v0) (:: 'Map 'Tag 'Dynamic)
                   {}
-                    :value $ or (:v0 state) 0.1
+                    :value $ :v0 state
                     :title |v0
                     :unit 0.0001
                     :min 0.0001
                     :max 2
                     :position $ [] -280 -280
                     :on-change $ fn (v d!)
-                      d! $ :: :states cursor $ assoc state :v0 v
-                comp-slider (>> states :v1)
+                      d! $ :: :states cursor $ assoc state :v0 (decode-map-as v 'Number)
+                comp-slider
+                  decode-map-as (>> states :v1) (:: 'Map 'Tag 'Dynamic)
                   {}
                     :value $ :v1 state
                     :title |v1
@@ -165,8 +177,9 @@
                     :position $ [] -140 -280
                     :round? true
                     :on-change $ fn (v d!)
-                      d! $ :: :states cursor $ assoc state :v1 v
-                comp-slider (>> states :v2)
+                      d! $ :: :states cursor $ assoc state :v1 (decode-map-as v 'Number)
+                comp-slider
+                  decode-map-as (>> states :v2) (:: 'Map 'Tag 'Dynamic)
                   {}
                     :value $ :v2 state
                     :title |v2
@@ -175,8 +188,9 @@
                     :round? true
                     :position $ [] 0 -280
                     :on-change $ fn (v d!)
-                      d! $ :: :states cursor $ assoc state :v2 v
-                comp-slider (>> states :alpha)
+                      d! $ :: :states cursor $ assoc state :v2 (decode-map-as v 'Number)
+                comp-slider
+                  decode-map-as (>> states :alpha) (:: 'Map 'Tag 'Dynamic)
                   {}
                     :value $ :alpha state
                     :title |alpha
@@ -186,8 +200,9 @@
                     :round? false
                     :position $ [] 280 -280
                     :on-change $ fn (v d!)
-                      d! $ :: :states cursor $ assoc state :alpha v
-                comp-slider (>> states :phi2)
+                      d! $ :: :states cursor $ assoc state :alpha (decode-map-as v 'Number)
+                comp-slider
+                  decode-map-as (>> states :phi2) (:: 'Map 'Tag 'Dynamic)
                   {}
                     :value $ :phi2 state
                     :title |phi
@@ -197,7 +212,7 @@
                     :round? false
                     :position $ [] 420 -280
                     :on-change $ fn (v d!)
-                      d! $ :: :states cursor $ assoc state :phi2 v
+                      d! $ :: :states cursor $ assoc state :phi2 (decode-map-as v 'Number)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'phlox.schema/PhloxElement)
             :args $ [] $ :: 'Map 'Tag 'Dynamic
@@ -216,15 +231,15 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.container
           :require
-            [] phlox.core :refer $ [] defcomp >> hslx container graphics g ffi-cos ffi-sin
-            [] app.complex :as complex
-            [] app.schema :refer $ [] normalize-state initial-state
-            [] phlox.comp.slider :refer $ [] comp-slider
-            [] phlox.comp.drag-point :refer $ [] comp-drag-point
+            phlox.core :refer $ defcomp >> hslx container graphics g ffi-cos ffi-sin
+            app.complex :as complex
+            app.schema :refer $ normalize-state initial-state
+            phlox.comp.slider :refer $ comp-slider
+            phlox.comp.drag-point :refer $ comp-drag-point
     'app.main $ %{} 'FileEntry
       :defs $ {}
         '*store $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *store schema/store
+          :code $ quote $ defref *store schema/store
           :examples $ []
           :schema $ :: 'Ref $ :: 'Map 'Tag 'Dynamic
         'dispatch! $ %{} 'CodeEntry (:doc |)
@@ -237,6 +252,7 @@
               reset! *store $ updater @*store op
                 decode-map-as (shortid/generate) 'String
                 decode-map-as (js/Date.now) 'Number
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Enum
@@ -245,8 +261,9 @@
           :code $ quote $ defn main! ()
             if dev? $ load-console-formatter!
             whenFontsReady $ fn () $ render-app!
-            add-watch *store :change $ fn (s p) (render-app!)
+            add-watch! *store :change $ fn (s p) (render-app!)
             println "|App Started"
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -254,11 +271,12 @@
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (js-nullish? build-errors)
-              do (println "|Code updated.") (clear-phlox-caches!) (remove-watch *store :change)
-                add-watch *store :change $ fn (store prev) (render-app!)
+              do (println "|Code updated.") (clear-phlox-caches!) (remove-watch! *store :change)
+                add-watch! *store :change $ fn (store prev) (render-app!)
                 render-app!
                 hud! |ok~ |Ok
               hud! |error build-errors
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -272,15 +290,15 @@
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
-          :require ([] |shortid :as shortid)
-            [] phlox.core :refer $ [] render! clear-phlox-caches!
-            [] app.container :refer $ [] comp-container
-            [] app.schema :as schema
-            [] app.config :refer $ [] dev?
-            [] app.updater :refer $ [] updater
-            [] |../assets/fonts.mjs :refer $ [] whenFontsReady
-            [] |./calcit.build-errors :default build-errors
-            [] |bottom-tip :default hud!
+          :require (|shortid :as shortid)
+            phlox.core :refer $ render! clear-phlox-caches!
+            app.container :refer $ comp-container
+            app.schema :as schema
+            app.config :refer $ dev?
+            app.updater :refer $ updater
+            |../assets/fonts.mjs :refer $ whenFontsReady
+            |./calcit.build-errors :default build-errors
+            |bottom-tip :default hud!
     'app.schema $ %{} 'FileEntry
       :defs $ {}
         'Op $ %{} 'CodeEntry (:doc |)
@@ -326,7 +344,8 @@
         'normalize-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn normalize-state (data)
             if (struct? data)
-              if (&struct:matches? data RailState) (assert-type data 'app.schema/RailState) (raise |Unexpected-RailState)
+              struct-match data (RailState state state)
+                _ invalid $ raise |Unexpected-RailState
               decode-map-as data 'app.schema/RailState
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'app.schema/RailState)
@@ -357,6 +376,17 @@
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Map 'Tag 'Dynamic) 'app.schema/Op 'String 'Number
             :return $ :: 'Map 'Tag 'Dynamic
+          :tests $ [] $ %{} 'TestEntry (:name |rail-state-cursor)
+            :code $ quote $ let
+                state $ assoc (assoc app.schema/initial-state :v0 0.02) :steps 120
+                next $ updater app.schema/store
+                  app.schema/normalize-op $ :: :states ([]) state
+                  , |regression 0
+              assert= state $ app.schema/normalize-state $ .unwrap
+                get
+                  .unwrap $ get next :states
+                  , :data
+              assert= 0 $ .unwrap $ get next :x
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
           :require $ phlox.cursor :refer $ update-states
