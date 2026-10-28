@@ -12,45 +12,30 @@
       :defs $ {}
         'add $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn add (p1 p2)
-            let-sugar
-                  [] a b
-                  , p1
-                ([] x y) p2
-              [] (+ a x) (+ b y)
+            let[] (a b) p1 $ let[] (x y) p2 $ [] (+ a x) (+ b y)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'List 'Number) (:: 'List 'Number)
             :return $ :: 'List 'Number
         'minus $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn minus (p1 p2)
-            let-sugar
-                  [] a b
-                  , p1
-                ([] x y) p2
-              [] (- a x) (- b y)
+            let[] (a b) p1 $ let[] (x y) p2 $ [] (- a x) (- b y)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'List 'Number) (:: 'List 'Number)
             :return $ :: 'List 'Number
         'negate $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn negate (p)
-            let-sugar
-                  [] x y
-                  , p
-              [] (- 0 x) (- 0 y)
+            let[] (x y) p $ [] (- 0 x) (- 0 y)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] $ :: 'List 'Number
             :return $ :: 'List 'Number
         'times $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn times (p1 p2)
-            let-sugar
-                  [] a b
-                  , p1
-                ([] x y) p2
-              []
-                - (* a x) (* b y)
-                + (* a y) (* b x)
+            let[] (a b) p1 $ let[] (x y) p2 $ []
+              - (* a x) (* b y)
+              + (* a y) (* b x)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'List 'Number) (:: 'List 'Number)
