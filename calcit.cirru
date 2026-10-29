@@ -14,32 +14,28 @@
           :code $ quote $ defn add (p1 p2)
             let[] (a b) p1 $ let[] (x y) p2 $ [] (+ a x) (+ b y)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Number) (:: 'List 'Number)
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn (List Number) (List Number)
+            -> $ List Number
         'minus $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn minus (p1 p2)
             let[] (a b) p1 $ let[] (x y) p2 $ [] (- a x) (- b y)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Number) (:: 'List 'Number)
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn (List Number) (List Number)
+            -> $ List Number
         'negate $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn negate (p)
             let[] (x y) p $ [] (- 0 x) (- 0 y)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'List 'Number
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn (List Number)
+            -> $ List Number
         'times $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn times (p1 p2)
             let[] (a b) p1 $ let[] (x y) p2 $ []
               - (* a x) (* b y)
               + (* a y) (* b x)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Number) (:: 'List 'Number)
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn (List Number) (List Number)
+            -> $ List Number
           :tests $ [] $ %{} 'TestEntry (:name |complex-product)
             :code $ quote $ assert= ([] -5 10)
               times ([] 1 2) ([] 3 4)
@@ -51,12 +47,12 @@
           :code $ quote $ def dev?
             = |dev $ .unwrap-or (get-env |mode) |release
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'site $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def site
             {} (:dev-ui |http://localhost:8100/main-fonts.css) (:release-ui |http://cdn.tiye.me/favored-fonts/main-fonts.css) (:cdn-url |https://cos-sh.tiye.me/Phlox-GL/waving-rail/) (:title "|Waving Rail") (:icon |http://cdn.tiye.me/logo/quamolit.png) (:storage-key |waving-rail)
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.config
     'app.container $ %{} 'FileEntry
@@ -68,9 +64,8 @@
                 ffi-cos $ + phi $ * v0 v idx
                 ffi-sin $ + phi $ * v0 v idx
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Number) 'Number 'Number 'Number 'Number 'Number
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn (List Number) Number Number Number Number Number
+            -> $ List Number
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (store)
             let
@@ -199,8 +194,7 @@
                     :on-change $ fn (v d!)
                       d! $ :: :states cursor $ assoc state :phi2 (decode-map-as v 'Number)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'phlox.schema/PhloxElement)
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) (-> phlox.schema/PhloxElement)
         'gen-trails $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn gen-trails (state)
             ->
@@ -210,9 +204,8 @@
                   cal-position (:p1 state) (:r1 state) (:v0 state) (:v1 state) 0 idx
                   cal-position (:p2 state) (:r2 state) (:v0 state) (:v2 state) (:phi2 state) idx
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'app.schema/RailState
-            :return $ :: 'List $ :: 'List (:: 'List 'Number)
+          :schema $ quote $ Fn app.schema/RailState
+            -> $ List $ List (List Number)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.container
           :require
@@ -226,7 +219,7 @@
         '*store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *store schema/store
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Ref (Map Tag Dynamic)
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (raw-op)
             let
@@ -239,9 +232,7 @@
                 decode-map-as (js/Date.now) 'Number
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Enum
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Enum (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             if dev? $ load-console-formatter!
@@ -250,9 +241,7 @@
             println "|App Started"
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (js-nullish? build-errors)
@@ -263,16 +252,12 @@
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             render! (comp-container @*store) dispatch! $ {}
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require (|shortid :as shortid)
@@ -288,10 +273,12 @@
       :defs $ {}
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op (:add-x) (:tab 'Tag)
-            :states (:: 'List 'Dynamic) 'Dynamic
-            :hydrate-storage $ :: 'Map 'Tag 'Dynamic
+            :states
+              quote $ List Dynamic
+              , 'Dynamic
+            :hydrate-storage $ quote $ Map Tag Dynamic
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'RailState $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct RailState
             {} (:v0 'Number) (:r1 'Number)
@@ -304,12 +291,12 @@
               :steps 'Number
               :alpha 'Number
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'initial-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def initial-state
             RailState :v0 0.01 :r1 150 :p1 ([] 300 300) :v1 0.2 :r2 200 :p2 ([] 300 300) :v2 0.2 :phi2 0 :steps 100 :alpha 1
           :examples $ []
-          :schema $ :: 'app.schema/RailState
+          :schema $ quote app.schema/RailState
         'normalize-op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn normalize-op (op)
             match op
@@ -324,8 +311,7 @@
                 Op :hydrate-storage $ decode-map-as data $ :: 'Map 'Tag 'Dynamic
               _ $ raise |Unknown-operation
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.schema/Op)
-            :args $ [] 'Enum
+          :schema $ quote $ Fn Enum (-> app.schema/Op)
         'normalize-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn normalize-state (data)
             if (struct? data)
@@ -333,14 +319,13 @@
                 _ invalid $ raise |Unexpected-RailState
               decode-map-as data 'app.schema/RailState
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.schema/RailState)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> app.schema/RailState)
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             {} (:tab :drafts) (:x 0)
               :states $ {}
           :examples $ []
-          :schema $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.schema
     'app.updater $ %{} 'FileEntry
@@ -358,9 +343,8 @@
               (:states cursor state) (update-states store cursor state)
               (:hydrate-storage data) data
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'app.schema/Op 'String 'Number
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) app.schema/Op String Number
+            -> $ Map Tag Dynamic
           :tests $ [] $ %{} 'TestEntry (:name |rail-state-cursor)
             :code $ quote $ let
                 state $ assoc (assoc app.schema/initial-state :v0 0.02) :steps 120
