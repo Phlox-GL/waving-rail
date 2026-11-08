@@ -69,10 +69,7 @@
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (store)
             let
-                states $ decode-map-as
-                  .unwrap $ get store :states
-                  :: 'Map 'Tag 'Dynamic
-                cursor $ []
+                states $ :states store
                 state $ normalize-state $ .unwrap-or (get states :data) initial-state
               container ({})
                 container
@@ -88,45 +85,45 @@
                             g :move-to $ .unwrap $ first pair
                             g :line-to $ .unwrap $ last pair
                   comp-drag-point
-                    decode-map-as (>> states :p1) (:: 'Map 'Tag 'Dynamic)
+                    decode-map-as (>> states :p1) (Map Tag Dynamic)
                     {}
                       :position $ :p1 state
                       :radius 4
                       :on-change $ fn (p d!)
-                        d! $ :: :states cursor $ assoc state :p1
-                          decode-map-as p $ :: 'List 'Number
+                        d! $ app.schema/Op :rail-state $ assoc state :p1
+                          decode-map-as p $ List Number
                   comp-drag-point
-                    decode-map-as (>> states :r1) (:: 'Map 'Tag 'Dynamic)
+                    decode-map-as (>> states :r1) (Map Tag Dynamic)
                     {}
                       :position $ complex/add (:p1 state)
                         [] (:r1 state) 0
                       :radius 4
                       :on-change $ fn (p d!)
-                        d! $ :: :states cursor $ assoc state :r1
+                        d! $ app.schema/Op :rail-state $ assoc state :r1
                           -
-                            .unwrap $ first $ decode-map-as p (:: 'List 'Number)
+                            .unwrap $ first $ decode-map-as p (List Number)
                             .unwrap $ first $ :p1 state
                   comp-drag-point
-                    decode-map-as (>> states :p2) (:: 'Map 'Tag 'Dynamic)
+                    decode-map-as (>> states :p2) (Map Tag Dynamic)
                     {}
                       :position $ :p2 state
                       :radius 4
                       :on-change $ fn (p d!)
-                        d! $ :: :states cursor $ assoc state :p2
-                          decode-map-as p $ :: 'List 'Number
+                        d! $ app.schema/Op :rail-state $ assoc state :p2
+                          decode-map-as p $ List Number
                   comp-drag-point
-                    decode-map-as (>> states :r2) (:: 'Map 'Tag 'Dynamic)
+                    decode-map-as (>> states :r2) (Map Tag Dynamic)
                     {}
                       :position $ complex/add (:p2 state)
                         [] (:r2 state) 0
                       :radius 4
                       :on-change $ fn (p d!)
-                        d! $ :: :states cursor $ assoc state :r2
+                        d! $ app.schema/Op :rail-state $ assoc state :r2
                           -
-                            .unwrap $ first $ decode-map-as p (:: 'List 'Number)
+                            .unwrap $ first $ decode-map-as p (List Number)
                             .unwrap $ first $ :p2 state
                 comp-slider
-                  decode-map-as (>> states :steps) (:: 'Map 'Tag 'Dynamic)
+                  decode-map-as (>> states :steps) (Map Tag Dynamic)
                   {}
                     :value $ :steps state
                     :round? true
@@ -135,9 +132,9 @@
                     :position $ [] 140 -280
                     :title |Steps
                     :on-change $ fn (v d!)
-                      d! $ :: :states cursor $ assoc state :steps (decode-map-as v 'Number)
+                      d! $ app.schema/Op :rail-state $ assoc state :steps (decode-map-as v 'Number)
                 comp-slider
-                  decode-map-as (>> states :v0) (:: 'Map 'Tag 'Dynamic)
+                  decode-map-as (>> states :v0) (Map Tag Dynamic)
                   {}
                     :value $ :v0 state
                     :title |v0
@@ -146,9 +143,9 @@
                     :max 2
                     :position $ [] -280 -280
                     :on-change $ fn (v d!)
-                      d! $ :: :states cursor $ assoc state :v0 (decode-map-as v 'Number)
+                      d! $ app.schema/Op :rail-state $ assoc state :v0 (decode-map-as v 'Number)
                 comp-slider
-                  decode-map-as (>> states :v1) (:: 'Map 'Tag 'Dynamic)
+                  decode-map-as (>> states :v1) (Map Tag Dynamic)
                   {}
                     :value $ :v1 state
                     :title |v1
@@ -157,9 +154,9 @@
                     :position $ [] -140 -280
                     :round? true
                     :on-change $ fn (v d!)
-                      d! $ :: :states cursor $ assoc state :v1 (decode-map-as v 'Number)
+                      d! $ app.schema/Op :rail-state $ assoc state :v1 (decode-map-as v 'Number)
                 comp-slider
-                  decode-map-as (>> states :v2) (:: 'Map 'Tag 'Dynamic)
+                  decode-map-as (>> states :v2) (Map Tag Dynamic)
                   {}
                     :value $ :v2 state
                     :title |v2
@@ -168,9 +165,9 @@
                     :round? true
                     :position $ [] 0 -280
                     :on-change $ fn (v d!)
-                      d! $ :: :states cursor $ assoc state :v2 (decode-map-as v 'Number)
+                      d! $ app.schema/Op :rail-state $ assoc state :v2 (decode-map-as v 'Number)
                 comp-slider
-                  decode-map-as (>> states :alpha) (:: 'Map 'Tag 'Dynamic)
+                  decode-map-as (>> states :alpha) (Map Tag Dynamic)
                   {}
                     :value $ :alpha state
                     :title |alpha
@@ -180,9 +177,9 @@
                     :round? false
                     :position $ [] 280 -280
                     :on-change $ fn (v d!)
-                      d! $ :: :states cursor $ assoc state :alpha (decode-map-as v 'Number)
+                      d! $ app.schema/Op :rail-state $ assoc state :alpha (decode-map-as v 'Number)
                 comp-slider
-                  decode-map-as (>> states :phi2) (:: 'Map 'Tag 'Dynamic)
+                  decode-map-as (>> states :phi2) (Map Tag Dynamic)
                   {}
                     :value $ :phi2 state
                     :title |phi
@@ -192,9 +189,9 @@
                     :round? false
                     :position $ [] 420 -280
                     :on-change $ fn (v d!)
-                      d! $ :: :states cursor $ assoc state :phi2 (decode-map-as v 'Number)
+                      d! $ app.schema/Op :rail-state $ assoc state :phi2 (decode-map-as v 'Number)
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (-> phlox.schema/PhloxElement)
+          :schema $ quote $ Fn app.schema/Store (-> phlox.schema/PhloxElement)
         'gen-trails $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn gen-trails (state)
             ->
@@ -219,20 +216,21 @@
         '*store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *store schema/store
           :examples $ []
-          :schema $ quote $ Ref (Map Tag Dynamic)
+          :schema $ quote $ Ref app.schema/Store
         'dispatch! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn dispatch! (raw-op)
-            let
-                op $ schema/normalize-op raw-op
-              when dev? $ match op
-                (:states cursor state) nil
-                _ $ println |dispatch! op
-              reset! *store $ updater @*store op
-                decode-map-as (shortid/generate) 'String
-                decode-map-as (js/Date.now) 'Number
+          :code $ quote $ defn dispatch! (op)
+            when
+              and dev? $ match op
+                (:states _ _) false
+                (:rail-state _) false
+                _ true
+              println |dispatch! op
+            reset! *store $ updater @*store op
+              decode-map-as (shortid/generate) String
+              decode-map-as (js/Date.now) Number
             , &unit
           :examples $ []
-          :schema $ quote $ Fn Enum (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn app.schema/Op (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             if dev? $ load-console-formatter!
@@ -255,7 +253,12 @@
           :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
-            render! (comp-container @*store) dispatch! $ {}
+            render! (comp-container @*store)
+              fn (op)
+                if (enum? op)
+                  dispatch! $ schema/normalize-op op
+                  raise |expected-waving-rail-event
+              {}
           :examples $ []
           :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
@@ -272,24 +275,27 @@
     'app.schema $ %{} 'FileEntry
       :defs $ {}
         'Op $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defenum Op (:add-x) (:tab 'Tag)
-            :states
-              quote $ List Dynamic
-              , 'Dynamic
-            :hydrate-storage $ quote $ Map Tag Dynamic
+          :code $ quote $ defenum Op (:add-x) (:tab Tag)
+            :states (List Dynamic) Dynamic
+            :rail-state app.schema/RailState
+            :hydrate-storage app.schema/Store
           :examples $ []
           :schema $ quote EnumDef
         'RailState $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct RailState
-            {} (:v0 'Number) (:r1 'Number)
-              :p1 $ :: 'List 'Number
-              :v1 'Number
-              :r2 'Number
-              :p2 $ :: 'List 'Number
-              :v2 'Number
-              :phi2 'Number
-              :steps 'Number
-              :alpha 'Number
+          :code $ quote $ defstruct RailState (:v0 Number) (:r1 Number)
+            :p1 $ List Number
+            :v1 Number
+            :r2 Number
+            :p2 $ List Number
+            :v2 Number
+            :phi2 Number
+            :steps Number
+            :alpha Number
+          :examples $ []
+          :schema $ quote StructDef
+        'Store $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defstruct Store (:tab Tag) (:x Number)
+            :states $ Map Tag Dynamic
           :examples $ []
           :schema $ quote StructDef
         'initial-state $ %{} 'CodeEntry (:doc |)
@@ -305,13 +311,15 @@
                 Op :tab $ decode-map-as tab 'Tag
               (:states cursor data)
                 Op :states
-                  decode-map-as cursor $ :: 'List 'Dynamic
+                  decode-map-as cursor $ List Dynamic
                   , data
               (:hydrate-storage data)
-                Op :hydrate-storage $ decode-map-as data $ :: 'Map 'Tag 'Dynamic
+                Op :hydrate-storage $ decode-map-as data app.schema/Store
+              (:rail-state data)
+                Op :rail-state $ normalize-state data
               _ $ raise |Unknown-operation
           :examples $ []
-          :schema $ quote $ Fn Enum (-> app.schema/Op)
+          :schema $ quote $ Fn AnyEnum (-> app.schema/Op)
         'normalize-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn normalize-state (data)
             if (struct? data)
@@ -322,10 +330,9 @@
           :schema $ quote $ Fn Dynamic (-> app.schema/RailState)
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
-            {} (:tab :drafts) (:x 0)
-              :states $ {}
+            Store :tab :drafts :x 0 :states $ {}
           :examples $ []
-          :schema $ quote $ Map Tag Dynamic
+          :schema $ quote app.schema/Store
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.schema
     'app.updater $ %{} 'FileEntry
@@ -335,16 +342,18 @@
             match op
               (:add-x)
                 let
-                    x $ decode-map-as
-                      .unwrap $ get store :x
-                      , 'Number
+                    x $ :x store
                   assoc store :x $ if (> x 10) 0 $ + x 1
               (:tab tab) (assoc store :tab tab)
-              (:states cursor state) (update-states store cursor state)
+              (:states cursor data)
+                assoc store :states $ decode-map-as
+                  assoc-in (:states store) (conj cursor :data) data
+                  Map Tag Dynamic
+              (:rail-state state)
+                assoc store :states $ assoc (:states store) :data state
               (:hydrate-storage data) data
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) app.schema/Op String Number
-            -> $ Map Tag Dynamic
+          :schema $ quote $ Fn app.schema/Store app.schema/Op String Number (-> app.schema/Store)
           :tests $ [] $ %{} 'TestEntry (:name |rail-state-cursor)
             :code $ quote $ let
                 state $ assoc (assoc app.schema/initial-state :v0 0.02) :steps 120
@@ -352,10 +361,7 @@
                   app.schema/normalize-op $ :: :states ([]) state
                   , |regression 0
               assert= state $ app.schema/normalize-state $ .unwrap
-                get
-                  .unwrap $ get next :states
-                  , :data
-              assert= 0 $ .unwrap $ get next :x
+                get (:states next) :data
+              assert= 0 $ :x next
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
-          :require $ phlox.cursor :refer $ update-states
