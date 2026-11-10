@@ -215,7 +215,7 @@
         '*rail-store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *rail-store schema/store
           :examples $ []
-          :schema $ quote $ Ref app.schema/Store
+          :schema $ quote $ Ref schema/Store
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             when
@@ -229,7 +229,7 @@
               decode-map-as (js/Date.now) Number
             , &unit
           :examples $ []
-          :schema $ quote $ Fn app.schema/Op (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn schema/Op (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             if dev? $ load-console-formatter!
@@ -273,6 +273,10 @@
             |bottom-tip :default hud!
     'app.schema $ %{} 'FileEntry
       :defs $ {}
+        'ControlNode $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion ControlNode WidgetValue (Map app.schema/CursorKey ControlNode)
+          :examples $ []
+          :schema $ quote UnionDef
         'CursorKey $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defunion CursorKey Tag String Number
           :examples $ []
@@ -298,7 +302,7 @@
           :schema $ quote StructDef
         'Store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct Store (:tab Tag) (:x Number) (:rail app.schema/RailState)
-            :states $ Map Tag Dynamic
+            :states $ Map Tag app.schema/ControlNode
           :examples $ []
           :schema $ quote StructDef
         'WidgetValue $ %{} 'CodeEntry
@@ -310,12 +314,12 @@
           :code $ quote $ def initial-state
             RailState :v0 0.01 :r1 150 :p1 ([] 300 300) :v1 0.2 :r2 200 :p2 ([] 300 300) :v2 0.2 :phi2 0 :steps 100 :alpha 1
           :examples $ []
-          :schema $ quote app.schema/RailState
+          :schema $ quote RailState
         'normalize-op $ %{} 'CodeEntry
           :doc "|Adapt the anonymous state event emitted by Phlox widgets."
           :code $ quote $ defn normalize-op (op)
             if
-              = (enum-definition op) (Option :some Op)
+              = (enum-definition op) (Some Op)
               decode-map-as op 'app.schema/Op
               match op
                 (:states cursor data)
@@ -326,7 +330,7 @@
                       Op :states path $ decode-map-as data $ Map Tag WidgetValue
                 _ $ raise |Unknown-operation
           :examples $ []
-          :schema $ quote $ Fn AnyEnum (-> app.schema/Op) (:open :decode)
+          :schema $ quote $ Fn AnyEnum (-> Op) (:open :decode)
         'normalize-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn normalize-state (data)
             if (struct? data)
@@ -334,12 +338,12 @@
                 _ invalid $ raise |Unexpected-RailState
               decode-map-as data 'app.schema/RailState
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> app.schema/RailState)
+          :schema $ quote $ Fn Dynamic (-> RailState)
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             Store :tab :drafts :x 0 :rail initial-state :states $ {}
           :examples $ []
-          :schema $ quote app.schema/Store
+          :schema $ quote Store
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.schema
     'app.updater $ %{} 'FileEntry
@@ -355,7 +359,7 @@
               (:states cursor data)
                 assoc store :states $ decode-map-as
                   assoc-in (:states store) (conj cursor :data) data
-                  Map Tag Dynamic
+                  Map Tag app.schema/ControlNode
               (:rail-state state) (assoc store :rail state)
               (:hydrate-storage data) data
           :examples $ []
@@ -370,10 +374,17 @@
                   app.schema/normalize-op $ :: :states ([] :steps)
                     {} $ :dragging? true
                   , |regression 1
+                nested $ updater moved
+                  app.schema/normalize-op $ :: :states ([] :steps |pointer 2)
+                    {} $ :x0 $ [] 4 5
+                  , |regression 2
               assert= state $ :rail next
               assert= state $ :rail moved
               assert= (Result :ok true)
                 get-in (:states moved) ([] :steps :data :dragging?)
               assert= 0 $ :x moved
+              assert=
+                Result :ok $ [] 4 5
+                get-in (:states nested) ([] :steps |pointer 2 :data :x0)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
