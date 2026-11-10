@@ -70,7 +70,7 @@
           :code $ quote $ defcomp comp-container (store)
             let
                 states $ :states store
-                state $ normalize-state $ .unwrap-or (get states :data) initial-state
+                state $ :rail store
               container ({})
                 container
                   {} $ :position $ [] -300 -300
@@ -208,13 +208,12 @@
           :require
             phlox.core :refer $ defcomp >> hslx container graphics g ffi-cos ffi-sin
             app.complex :as complex
-            app.schema :refer $ normalize-state initial-state
             phlox.comp.slider :refer $ comp-slider
             phlox.comp.drag-point :refer $ comp-drag-point
     'app.main $ %{} 'FileEntry
       :defs $ {}
-        '*store $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defref *store schema/store
+        '*rail-store $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defref *rail-store schema/store
           :examples $ []
           :schema $ quote $ Ref app.schema/Store
         'dispatch! $ %{} 'CodeEntry (:doc |)
@@ -225,7 +224,7 @@
                 (:rail-state _) false
                 _ true
               println |dispatch! op
-            reset! *store $ updater @*store op
+            reset! *rail-store $ updater @*rail-store op
               decode-map-as (shortid/generate) String
               decode-map-as (js/Date.now) Number
             , &unit
@@ -235,7 +234,7 @@
           :code $ quote $ defn main! ()
             if dev? $ load-console-formatter!
             whenFontsReady $ fn () $ render-app!
-            add-watch! *store :change $ fn (s p) (render-app!)
+            add-watch! *rail-store :change $ fn (s p) (render-app!)
             println "|App Started"
             , &unit
           :examples $ []
@@ -243,8 +242,8 @@
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (js-nullish? build-errors)
-              do (println "|Code updated.") (clear-phlox-caches!) (remove-watch! *store :change)
-                add-watch! *store :change $ fn (store prev) (render-app!)
+              do (println "|Code updated.") (clear-phlox-caches!) (remove-watch! *rail-store :change)
+                add-watch! *rail-store :change $ fn (store prev) (render-app!)
                 render-app!
                 hud! |ok~ |Ok
               hud! |error build-errors
@@ -253,7 +252,7 @@
           :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
-            render! (comp-container @*store)
+            render! (comp-container @*rail-store)
               fn (op)
                 if (enum? op)
                   dispatch! $ schema/normalize-op op
@@ -280,7 +279,7 @@
           :schema $ quote UnionDef
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op (:add-x) (:tab Tag)
-            :states (List app.schema/CursorKey) Dynamic
+            :states (List app.schema/CursorKey) (Map Tag app.schema/WidgetValue)
             :rail-state app.schema/RailState
             :hydrate-storage app.schema/Store
           :examples $ []
@@ -298,10 +297,15 @@
           :examples $ []
           :schema $ quote StructDef
         'Store $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct Store (:tab Tag) (:x Number)
+          :code $ quote $ defstruct Store (:tab Tag) (:x Number) (:rail app.schema/RailState)
             :states $ Map Tag Dynamic
           :examples $ []
           :schema $ quote StructDef
+        'WidgetValue $ %{} 'CodeEntry
+          :doc "|Pointer state carried by the Phlox drag points and sliders."
+          :code $ quote $ defunion WidgetValue Bool Number (List Number)
+          :examples $ []
+          :schema $ quote UnionDef
         'initial-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def initial-state
             RailState :v0 0.01 :r1 150 :p1 ([] 300 300) :v1 0.2 :r2 200 :p2 ([] 300 300) :v2 0.2 :phi2 0 :steps 100 :alpha 1
@@ -315,9 +319,11 @@
               decode-map-as op 'app.schema/Op
               match op
                 (:states cursor data)
-                  Op :states
-                    decode-map-as cursor $ List app.schema/CursorKey
-                    , data
+                  let
+                      path $ decode-map-as cursor $ List app.schema/CursorKey
+                    if (.empty? path)
+                      Op :rail-state $ normalize-state data
+                      Op :states path $ decode-map-as data $ Map Tag WidgetValue
                 _ $ raise |Unknown-operation
           :examples $ []
           :schema $ quote $ Fn AnyEnum (-> app.schema/Op) (:open :decode)
@@ -331,7 +337,7 @@
           :schema $ quote $ Fn Dynamic (-> app.schema/RailState)
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
-            Store :tab :drafts :x 0 :states $ {}
+            Store :tab :drafts :x 0 :rail initial-state :states $ {}
           :examples $ []
           :schema $ quote app.schema/Store
       :ns $ %{} 'NsEntry (:doc |)
@@ -350,8 +356,7 @@
                 assoc store :states $ decode-map-as
                   assoc-in (:states store) (conj cursor :data) data
                   Map Tag Dynamic
-              (:rail-state state)
-                assoc store :states $ assoc (:states store) :data state
+              (:rail-state state) (assoc store :rail state)
               (:hydrate-storage data) data
           :examples $ []
           :schema $ quote $ Fn app.schema/Store app.schema/Op String Number (-> app.schema/Store)
@@ -361,8 +366,14 @@
                 next $ updater app.schema/store
                   app.schema/normalize-op $ :: :states ([]) state
                   , |regression 0
-              assert= state $ app.schema/normalize-state $ .unwrap
-                get (:states next) :data
-              assert= 0 $ :x next
+                moved $ updater next
+                  app.schema/normalize-op $ :: :states ([] :steps)
+                    {} $ :dragging? true
+                  , |regression 1
+              assert= state $ :rail next
+              assert= state $ :rail moved
+              assert= (Result :ok true)
+                get-in (:states moved) ([] :steps :data :dragging?)
+              assert= 0 $ :x moved
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
