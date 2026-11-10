@@ -274,9 +274,13 @@
             |bottom-tip :default hud!
     'app.schema $ %{} 'FileEntry
       :defs $ {}
+        'CursorKey $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion CursorKey Tag String Number
+          :examples $ []
+          :schema $ quote UnionDef
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op (:add-x) (:tab Tag)
-            :states (List Dynamic) Dynamic
+            :states (List app.schema/CursorKey) Dynamic
             :rail-state app.schema/RailState
             :hydrate-storage app.schema/Store
           :examples $ []
@@ -303,23 +307,20 @@
             RailState :v0 0.01 :r1 150 :p1 ([] 300 300) :v1 0.2 :r2 200 :p2 ([] 300 300) :v2 0.2 :phi2 0 :steps 100 :alpha 1
           :examples $ []
           :schema $ quote app.schema/RailState
-        'normalize-op $ %{} 'CodeEntry (:doc |)
+        'normalize-op $ %{} 'CodeEntry
+          :doc "|Adapt the anonymous state event emitted by Phlox widgets."
           :code $ quote $ defn normalize-op (op)
-            match op
-              (:add-x) (Op :add-x)
-              (:tab tab)
-                Op :tab $ decode-map-as tab 'Tag
-              (:states cursor data)
-                Op :states
-                  decode-map-as cursor $ List Dynamic
-                  , data
-              (:hydrate-storage data)
-                Op :hydrate-storage $ decode-map-as data app.schema/Store
-              (:rail-state data)
-                Op :rail-state $ normalize-state data
-              _ $ raise |Unknown-operation
+            if
+              = (enum-definition op) (Option :some Op)
+              decode-map-as op 'app.schema/Op
+              match op
+                (:states cursor data)
+                  Op :states
+                    decode-map-as cursor $ List app.schema/CursorKey
+                    , data
+                _ $ raise |Unknown-operation
           :examples $ []
-          :schema $ quote $ Fn AnyEnum (-> app.schema/Op)
+          :schema $ quote $ Fn AnyEnum (-> app.schema/Op) (:open :decode)
         'normalize-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn normalize-state (data)
             if (struct? data)
