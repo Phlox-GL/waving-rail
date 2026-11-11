@@ -8,7 +8,7 @@ Inspired by https://twitter.com/wonderofscience/status/1269426023080144896
 
 Workflow https://github.com/mvc-works/phlox-workflow
 
-本地开发使用正式 Calcit / `@calcit/procs` **0.40.0**。升级后请重装依赖、构建并刷新。轨迹公式、控制范围、初始状态与页面 HUD 提示保持原行为。
+本地开发使用正式 Calcit / `@calcit/procs` **0.41.0**。升级后请重装依赖、构建并刷新。轨迹公式、控制范围、初始状态与页面 HUD 提示保持原行为。
 
 正式模块为 Phlox 0.9.3、Touch Control 0.0.39、JS FFI 0.2.13 和 Pointed Prompt 0.0.27。
 
@@ -18,7 +18,7 @@ Workflow https://github.com/mvc-works/phlox-workflow
 
 Pixi 在同一主版本内从旧 lock 的 7.2.4 更新到精确正式版 7.4.3，使用已发布的 assets peer 元数据修复，消除旧包对 `@pixi/utils` 的缺失 peer 报告；不增加 packageExtensions/安装豁免，也不升级到 Pixi 8。
 
-应用状态使用具名 `Store` 和 `Op`。十个轨迹控件传递 `RailState`，Phlox 控件的旧状态事件在渲染入口按 `CursorKey` 解码。轨迹状态 Map 仍在读取时校验为 `RailState`。组件游标仍可存放异构状态。
+应用状态使用具名 `Store` 和 `Op`。十个轨迹控件传递 `RailState`，Phlox 控件的旧状态事件在渲染入口按 `CursorKey` 解码。轨迹状态 Map 仍在读取时校验为 `RailState`。组件游标树使用递归 `ControlNode`，叶值为布尔值、数字或数值列表，分支可按 `CursorKey` 继续嵌套。
 
 生产前端资源部署至 `https://cos-sh.tiye.me/Phlox-GL/waving-rail/`，Vite base 与 COS prefix 使用同一个路径。仅主分支上传，PR 只检查与构建，不获取部署 secrets。COS action v1.2.0 的 `public-base-url` 启用内置 verify，不复制额外验证脚本。上传排队、不取消；生产发布前检查当前 main，过期构建同时跳过 COS 和服务器同步。服务器继续同步 `dist/*` 至原来的 `/web-assets/repo/${{ github.repository }}` 路径。
 
