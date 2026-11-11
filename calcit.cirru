@@ -202,7 +202,7 @@
                   cal-position (:p2 state) (:r2 state) (:v0 state) (:v2 state) (:phi2 state) idx
           :examples $ []
           :schema $ quote $ Fn app.schema/RailState
-            -> $ List $ List (List Number)
+            -> $ List $ Tuple (List Number) (List Number)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.container
           :require
@@ -338,7 +338,7 @@
                 _ invalid $ raise |Unexpected-RailState
               decode-map-as data 'app.schema/RailState
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> RailState)
+          :schema $ quote $ Fn Input (-> RailState) (:generics Input)
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             Store :tab :drafts :x 0 :rail initial-state :states $ {}
