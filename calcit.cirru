@@ -15,19 +15,19 @@
             let[] (a b) p1 $ let[] (x y) p2 $ [] (+ a x) (+ b y)
           :examples $ []
           :schema $ quote $ Fn (List Number) (List Number)
-            -> $ List Number
+            -> $ Tuple Number Number
         'minus $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn minus (p1 p2)
             let[] (a b) p1 $ let[] (x y) p2 $ [] (- a x) (- b y)
           :examples $ []
           :schema $ quote $ Fn (List Number) (List Number)
-            -> $ List Number
+            -> $ Tuple Number Number
         'negate $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn negate (p)
             let[] (x y) p $ [] (- 0 x) (- 0 y)
           :examples $ []
           :schema $ quote $ Fn (List Number)
-            -> $ List Number
+            -> $ Tuple Number Number
         'times $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn times (p1 p2)
             let[] (a b) p1 $ let[] (x y) p2 $ []
@@ -35,7 +35,7 @@
               + (* a y) (* b x)
           :examples $ []
           :schema $ quote $ Fn (List Number) (List Number)
-            -> $ List Number
+            -> $ Tuple Number Number
           :tests $ [] $ %{} 'TestEntry (:name |complex-product)
             :code $ quote $ assert= ([] -5 10)
               times ([] 1 2) ([] 3 4)
@@ -65,7 +65,7 @@
                 ffi-sin $ + phi $ * v0 v idx
           :examples $ []
           :schema $ quote $ Fn (List Number) Number Number Number Number Number
-            -> $ List Number
+            -> $ Tuple Number Number
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (store)
             let
@@ -202,7 +202,7 @@
                   cal-position (:p2 state) (:r2 state) (:v0 state) (:v2 state) (:phi2 state) idx
           :examples $ []
           :schema $ quote $ Fn app.schema/RailState
-            -> $ List $ Tuple (List Number) (List Number)
+            -> $ List $ Tuple (Tuple Number Number) (Tuple Number Number)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.container
           :require
@@ -229,7 +229,7 @@
               decode-map-as (js/Date.now) Number
             , &unit
           :examples $ []
-          :schema $ quote $ Fn schema/Op (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn schema/Op (-> Unit) (:features :io :js-ffi :state)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             if dev? $ load-console-formatter!
@@ -238,7 +238,7 @@
             println "|App Started"
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (js-nullish? build-errors)
@@ -249,7 +249,7 @@
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             render! (comp-container @*rail-store)
@@ -259,7 +259,7 @@
                   raise |expected-waving-rail-event
               {}
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require (|shortid :as shortid)
