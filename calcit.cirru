@@ -305,6 +305,11 @@
             :states $ Map Tag app.schema/ControlNode
           :examples $ []
           :schema $ quote StructDef
+        'WidgetEventData $ %{} 'CodeEntry
+          :doc "|A root rail state or the payload of a Phlox widget state update."
+          :code $ quote $ defunion WidgetEventData RailState (Map Tag WidgetValue)
+          :examples $ []
+          :schema $ quote UnionDef
         'WidgetStateField $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defunion WidgetStateField Bool Number (List CursorKey) (Map CursorKey ControlNode)
           :examples $ []
@@ -329,20 +334,17 @@
                 (:states cursor data)
                   let
                       path $ decode-map-as cursor $ List app.schema/CursorKey
-                    if (.empty? path)
-                      Op :rail-state $ normalize-state data
-                      Op :states path $ decode-map-as data $ Map Tag WidgetValue
+                      payload $ decode-map-as data WidgetEventData
+                    match payload
+                      (RailState state)
+                        if (.empty? path) (Op :rail-state state) (raise |Unexpected-RailState)
+                      (Map fields)
+                        if (.empty? path)
+                          Op :rail-state $ decode-map-as fields RailState
+                          Op :states path fields
                 _ $ raise |Unknown-operation
           :examples $ []
           :schema $ quote $ Fn AnyEnum (-> Op) (:open :decode)
-        'normalize-state $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn normalize-state (data)
-            if (struct? data)
-              struct-match data (RailState state state)
-                _ invalid $ raise |Unexpected-RailState
-              decode-map-as data 'app.schema/RailState
-          :examples $ []
-          :schema $ quote $ Fn Input (-> RailState) (:generics Input)
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             Store :tab :drafts :x 0 :rail initial-state :states $ {}
@@ -383,6 +385,8 @@
                     {} $ :x0 $ [] 4 5
                   , |regression 2
               assert= state $ :rail next
+              assert= (app.schema/Op :rail-state state)
+                app.schema/normalize-op $ :: :states ([]) (encode-map-as state app.schema/RailState)
               assert= state $ :rail moved
               assert= (Result :ok true)
                 get-in (:states moved) ([] :steps :data :dragging?)
