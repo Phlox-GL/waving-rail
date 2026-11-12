@@ -8,7 +8,7 @@ Inspired by https://twitter.com/wonderofscience/status/1269426023080144896
 
 Workflow https://github.com/mvc-works/phlox-workflow
 
-本地开发使用正式 Calcit / `@calcit/procs` **0.42.0**。升级后请重装依赖、构建并刷新。轨迹公式、控制范围、初始状态与页面 HUD 提示保持原行为。
+本地开发使用正式 Calcit / `@calcit/procs` **0.42.1**。升级后请重装依赖、构建并刷新。轨迹公式、控制范围、初始状态与页面 HUD 提示保持原行为。
 
 正式模块为 Phlox 0.9.3、Touch Control 0.0.39、JS FFI 0.2.13 和 Pointed Prompt 0.0.27。
 
