@@ -85,7 +85,7 @@
                             g :move-to $ .unwrap $ first pair
                             g :line-to $ .unwrap $ last pair
                   comp-drag-point
-                    decode-map-as (>> states :p1) (Map Tag Dynamic)
+                    decode-map-as (>> states :p1) (Map Tag app.schema/WidgetStateField)
                     {}
                       :position $ :p1 state
                       :radius 4
@@ -93,7 +93,7 @@
                         d! $ app.schema/Op :rail-state $ assoc state :p1
                           decode-map-as p $ List Number
                   comp-drag-point
-                    decode-map-as (>> states :r1) (Map Tag Dynamic)
+                    decode-map-as (>> states :r1) (Map Tag app.schema/WidgetStateField)
                     {}
                       :position $ complex/add (:p1 state)
                         [] (:r1 state) 0
@@ -104,7 +104,7 @@
                             .unwrap $ first $ decode-map-as p (List Number)
                             .unwrap $ first $ :p1 state
                   comp-drag-point
-                    decode-map-as (>> states :p2) (Map Tag Dynamic)
+                    decode-map-as (>> states :p2) (Map Tag app.schema/WidgetStateField)
                     {}
                       :position $ :p2 state
                       :radius 4
@@ -112,7 +112,7 @@
                         d! $ app.schema/Op :rail-state $ assoc state :p2
                           decode-map-as p $ List Number
                   comp-drag-point
-                    decode-map-as (>> states :r2) (Map Tag Dynamic)
+                    decode-map-as (>> states :r2) (Map Tag app.schema/WidgetStateField)
                     {}
                       :position $ complex/add (:p2 state)
                         [] (:r2 state) 0
@@ -123,7 +123,7 @@
                             .unwrap $ first $ decode-map-as p (List Number)
                             .unwrap $ first $ :p2 state
                 comp-slider
-                  decode-map-as (>> states :steps) (Map Tag Dynamic)
+                  decode-map-as (>> states :steps) (Map Tag app.schema/WidgetStateField)
                   {}
                     :value $ :steps state
                     :round? true
@@ -134,7 +134,7 @@
                     :on-change $ fn (v d!)
                       d! $ app.schema/Op :rail-state $ assoc state :steps (decode-map-as v 'Number)
                 comp-slider
-                  decode-map-as (>> states :v0) (Map Tag Dynamic)
+                  decode-map-as (>> states :v0) (Map Tag app.schema/WidgetStateField)
                   {}
                     :value $ :v0 state
                     :title |v0
@@ -145,7 +145,7 @@
                     :on-change $ fn (v d!)
                       d! $ app.schema/Op :rail-state $ assoc state :v0 (decode-map-as v 'Number)
                 comp-slider
-                  decode-map-as (>> states :v1) (Map Tag Dynamic)
+                  decode-map-as (>> states :v1) (Map Tag app.schema/WidgetStateField)
                   {}
                     :value $ :v1 state
                     :title |v1
@@ -156,7 +156,7 @@
                     :on-change $ fn (v d!)
                       d! $ app.schema/Op :rail-state $ assoc state :v1 (decode-map-as v 'Number)
                 comp-slider
-                  decode-map-as (>> states :v2) (Map Tag Dynamic)
+                  decode-map-as (>> states :v2) (Map Tag app.schema/WidgetStateField)
                   {}
                     :value $ :v2 state
                     :title |v2
@@ -167,7 +167,7 @@
                     :on-change $ fn (v d!)
                       d! $ app.schema/Op :rail-state $ assoc state :v2 (decode-map-as v 'Number)
                 comp-slider
-                  decode-map-as (>> states :alpha) (Map Tag Dynamic)
+                  decode-map-as (>> states :alpha) (Map Tag app.schema/WidgetStateField)
                   {}
                     :value $ :alpha state
                     :title |alpha
@@ -179,7 +179,7 @@
                     :on-change $ fn (v d!)
                       d! $ app.schema/Op :rail-state $ assoc state :alpha (decode-map-as v 'Number)
                 comp-slider
-                  decode-map-as (>> states :phi2) (Map Tag Dynamic)
+                  decode-map-as (>> states :phi2) (Map Tag app.schema/WidgetStateField)
                   {}
                     :value $ :phi2 state
                     :title |phi
@@ -305,6 +305,10 @@
             :states $ Map Tag app.schema/ControlNode
           :examples $ []
           :schema $ quote StructDef
+        'WidgetStateField $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion WidgetStateField Bool Number (List CursorKey) (Map CursorKey ControlNode)
+          :examples $ []
+          :schema $ quote UnionDef
         'WidgetValue $ %{} 'CodeEntry
           :doc "|Pointer state carried by the Phlox drag points and sliders."
           :code $ quote $ defunion WidgetValue Bool Number (List Number)
