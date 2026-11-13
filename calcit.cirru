@@ -328,7 +328,8 @@
           :doc "|Adapt the anonymous state event emitted by Phlox widgets."
           :code $ quote $ defn normalize-op (op)
             if
-              = (enum-definition op) (Some Op)
+              and (enum? op)
+                = (enum-definition op) (Some Op)
               decode-map-as op 'app.schema/Op
               match op
                 (:states cursor data)
@@ -344,7 +345,7 @@
                           Op :states path fields
                 _ $ raise |Unknown-operation
           :examples $ []
-          :schema $ quote $ Fn AnyEnum (-> Op) (:open :decode)
+          :schema $ quote $ Fn Input (-> Op) (:generics Input)
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             Store :tab :drafts :x 0 :rail initial-state :states $ {}
