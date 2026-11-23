@@ -74,16 +74,14 @@
               container ({})
                 container
                   {} $ :position $ [] -300 -300
-                  graphics $ {} $ :ops
+                  path-graphics-with ({})
                     concat
-                      [] $ g :line-style $ {} (:width 1)
-                        :color $ hslx 200 80 80
-                        :alpha $ :alpha state
+                      [] $ PathOp :line-style (hslx 200 80 80) 1 $ :alpha state
                       -> (gen-trails state)
                         mapcat $ fn (pair)
                           []
-                            g :move-to $ .unwrap $ first pair
-                            g :line-to $ .unwrap $ last pair
+                            PathOp :move-to $ .unwrap $ first pair
+                            PathOp :line-to $ .unwrap $ last pair
                   comp-drag-point
                     decode-map-as (>> states :p1) (Map Tag app.schema/WidgetStateField)
                     {}
@@ -206,7 +204,8 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.container
           :require
-            phlox.core :refer $ defcomp >> hslx container graphics g ffi-cos ffi-sin
+            phlox.core :refer $ defcomp >> hslx container path-graphics-with ffi-cos ffi-sin
+            phlox.schema :refer $ PathOp
             app.complex :as complex
             phlox.comp.slider :refer $ comp-slider
             phlox.comp.drag-point :refer $ comp-drag-point
