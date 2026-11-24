@@ -8,9 +8,9 @@ Inspired by https://twitter.com/wonderofscience/status/1269426023080144896
 
 Workflow https://github.com/mvc-works/phlox-workflow
 
-本地开发使用正式 Calcit / `@calcit/procs` **0.44.0**。升级后请重装依赖、构建并刷新。轨迹公式、控制范围、初始状态与页面 HUD 提示保持原行为。
+本地开发使用正式 Calcit / `@calcit/procs` **0.45.0**。升级后请重装依赖、构建并刷新。轨迹公式、控制范围、初始状态与页面 HUD 提示保持原行为。Phlox 布尔属性现受检为 Bool。
 
-正式模块为 Phlox 0.11.0、Touch Control 0.0.43、JS FFI 0.2.19 和 Pointed Prompt 0.0.30。
+正式模块为 Phlox 0.12.1、Touch Control 0.0.44、JS FFI 0.2.23 和 Pointed Prompt 0.0.31。
 
 源码只维护 `calcit.cirru` / `deps.cirru`，Snapshot 必须通过官方 CLI 编辑。运行 `caps --strict --ci`、`yarn install --immutable`、`caps verify --toolchain`、`yarn build`。本轮已验证真实发布依赖图，没有使用本地候选模块替代。Yarn 统一 60 分钟依赖年龄门禁，无包级例外。
 
